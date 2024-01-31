@@ -4,6 +4,8 @@ import { RouterOutlet } from '@angular/router';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 
+declare var confetti: any;
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -218,6 +220,16 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
               </div>
             </div>
           </div>
+          <div class="item-row">
+            <label for="ssr">Server-Side Rendering (SSR)
+              <input id="ssr" type="checkbox" formControlName="ssr" />
+            </label>
+            <div *ngIf="this.optionsForm.invalid && (this.ssr?.dirty || this.ssr?.touched)" class="alert alert-danger">
+              <div *ngIf="this.ssr?.errors?.['required']">
+                Server-Side Rendering (SSR)
+              </div>
+            </div>
+          </div>
 
           <div class="item-row">
             <button class="btn-primary" type="submit">Generate</button>
@@ -264,7 +276,8 @@ export class AppComponent {
   packagesOptions: Option[] = [
     { id: 1, value: 'npm' },
     { id: 2, value: 'yarn' },
-    { id: 3, value: 'pnpm' }
+    { id: 3, value: 'pnpm' },
+    { id: 3, value: 'cnpm' }
   ]
 
   stylesOptions: Option[] = [
@@ -282,6 +295,7 @@ export class AppComponent {
     templateInline: new FormControl<boolean | null>(false, { validators: [ Validators.required ], nonNullable: true }),
     routing: new FormControl<boolean | null>(false, { validators: [ Validators.required ], nonNullable: true }),
     standalone: new FormControl<boolean | null>(false, { validators: [ Validators.required ], nonNullable: true }),
+    ssr: new FormControl<boolean | null>(false, { validators: [ Validators.required ], nonNullable: true }),
   })
 
   get name() { return this.optionsForm.get('name') }
@@ -291,6 +305,7 @@ export class AppComponent {
   get templateInline() { return this.optionsForm.get('templateInline') }
   get routing() { return this.optionsForm.get('routing') }
   get standalone() { return this.optionsForm.get('standalone') }
+  get ssr() { return this.optionsForm.get('ssr') }
 
   submit(): void {
     this.copied = false;
@@ -303,9 +318,17 @@ export class AppComponent {
         `${this.optionsForm.get('templateInline')?.value ? '--inline-template ' : ''}` +
         `${this.optionsForm.get('routing')?.value ? '--routing ' : '--routing false '}` +
         `${this.optionsForm.get('packageManager')?.value ? `--package-manager ${this.packagesOptions[this.optionsForm.get('packageManager')?.value! -1].value} ` : ''}` +
-        `${this.optionsForm.get('standalone')?.value ? '--standalone ' : ''}` +
+        `${this.optionsForm.get('standalone')?.value ? ' ' : '--standalone false '}` +
+        `${this.optionsForm.get('ssr')?.value ? '--ssr true ' : '--ssr false '}` +
         `${this.optionsForm.get('style')?.value ? `--style ${this.stylesOptions[this.optionsForm.get('style')?.value! -1].value} ` : ''}` +
         `${this.optionsForm.get('name')?.value}`;
+
+
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
 
     }
   }
